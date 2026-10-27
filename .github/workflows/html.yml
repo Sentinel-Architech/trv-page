@@ -1,0 +1,25 @@
+name: html-check
+
+# Validates index.html and checks its links. Read-only; page content untouched.
+# x.com is excluded: it returns 403 to all automated link checkers.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate HTML
+        run: npx --yes html-validate@latest index.html
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --max-retries 2 --exclude '^https://(www\.)?(x|twitter)\.com' index.html
+          fail: true
